@@ -1,0 +1,9 @@
+---
+alwaysApply: true
+---
+1-request and response should be camelcase
+2-entites can be snake case 
+3-don't make assumptions ask me 
+4-reuse existing methods if possible
+5-keep the stracture of controller call service methods and service call repo methods
+6-use best practise and do search to get best practise 
