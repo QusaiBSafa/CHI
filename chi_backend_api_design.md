@@ -321,22 +321,11 @@ volumes:
 
 ---
 
-## 🧩 Edge Cases
-- Hidden required fields → ignored.
-- Multiselect fields → array validation.
-- Repeatable groups validated per instance.
-- Cross-section references validated.
-- Concurrent publish → atomic operation.
-- Partial submissions → supported via `correlationId`.
-
----
-
 ## ✅ Summary
 This backend provides:
 - Full CRUD & versioning for admin forms
 - Draft → publish → archive lifecycle
 - Dynamic branching and validation rules
 - Cross-field and multiselect validation
-- Public + private submissions
-- Scalable MongoDB architecture
+- private submissions - could be improved later to include public submission
 
