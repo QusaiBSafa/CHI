@@ -659,49 +659,4 @@ GET /api/v1/submissions
 Authorization: Bearer <patient-token>
 ```
 
----
 
-## 🧪 Testing Checklist
-
-### ✅ Form Management
-- [ ] Create draft form
-- [ ] Update draft form
-- [ ] Publish form
-- [ ] Archive form
-- [ ] List forms by status
-- [ ] Get form by ID
-
-### ✅ Submission Management
-- [ ] Submit complete form (success)
-- [ ] Save draft submission (in-progress)
-- [ ] Update existing in-progress submission
-- [ ] List user submissions
-- [ ] List all submissions (admin)
-
-### ✅ Validation Testing
-- [ ] Required field validation
-- [ ] Field type validation
-- [ ] Range validation (min/max)
-- [ ] Regex validation
-- [ ] Select option validation
-- [ ] Branching logic validation
-- [ ] Cross-field validation
-
-### ✅ Error Handling
-- [ ] Authentication errors
-- [ ] Authorization errors
-- [ ] Validation errors
-- [ ] Not found errors
-- [ ] Business rule violations
-
----
-
-## 📝 Notes
-
-1. **Authentication**: All endpoints require valid JWT tokens
-2. **Authorization**: Admin endpoints require admin role
-3. **Validation**: Complete submissions validate all rules, drafts don't
-4. **Branching**: Fields are shown/hidden based on other field values
-5. **Error Messages**: Detailed validation errors help users fix issues
-
-This comprehensive testing suite covers all major functionality and edge cases of the CHI API system.
