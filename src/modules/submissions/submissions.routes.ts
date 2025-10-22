@@ -28,7 +28,7 @@ export async function submissionsRoutes(app: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' }
+            data: { type: 'object', additionalProperties: true, nullable: true }
           }
         },
         400: {

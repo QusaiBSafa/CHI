@@ -93,8 +93,8 @@ export async function formsRoutes(app: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
-          },
+              data: { type: 'object', additionalProperties: true, nullable: true },
+            },
         },
         404: {
           type: 'object',
@@ -134,7 +134,7 @@ export async function formsRoutes(app: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
+            data: { type: 'object', additionalProperties: true, nullable: true },
           },
         },
         400: {
@@ -169,7 +169,7 @@ export async function formsRoutes(app: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
+            data: { type: 'object', additionalProperties: true, nullable: true },
           },
         },
         400: {
@@ -203,7 +203,7 @@ export async function formsRoutes(app: FastifyInstance) {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
+            data: { type: 'object', additionalProperties: true, nullable: true },
           },
         },
         404: {
