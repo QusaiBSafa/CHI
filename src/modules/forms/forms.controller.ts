@@ -46,7 +46,7 @@ export class FormsController {
         });
       }
 
-      return reply.status(201).send({
+      return reply.status(200).send({
         success: true,
         data: this.formatForm(result.form),
       });

@@ -1,7 +1,7 @@
 import { FormDSL, FormDSLSchema, Field } from './dsl/schema.zod';
 import { BranchingEngine } from './dsl/branching';
 import { ValidationRulesEngine } from './dsl/rules';
-import { ValidationError } from '../utils/result';
+import { ValidationError } from '../../utils/result';
 
 export class FormsValidator {
   private branchingEngine: BranchingEngine;

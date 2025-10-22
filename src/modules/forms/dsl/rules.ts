@@ -1,6 +1,6 @@
 import { Field, ValidationRule } from './schema.zod';
 import { ExpressionEvaluator } from './expressions';
-import { ValidationError } from '../../utils/result';
+import { ValidationError } from '../../../utils/result';
 
 export class ValidationRulesEngine {
   private evaluator: ExpressionEvaluator;
