@@ -238,8 +238,23 @@ db.forms.findOne({ form_id: "form_chi", status: "published" }, { sort: { version
 ```
 
 ---
+## 12. Field Types
 
-## 12. Summary
+| Type          | Data Type       | Description / Example                |
+| ------------- | --------------- | ------------------------------------ |
+| `text`        | string          | Free text answer                     |
+| `textarea`    | string          | Longer text answer                   |
+| `number`      | number          | Numeric input (e.g. age)             |
+| `date`        | date            | Date picker                          |
+| `boolean`     | boolean         | Yes/No (checkbox or toggle)          |
+| `singleSelect`      | string          | Dropdown (single-choice)             |
+| `multiselect` | array           | Dropdown (multi-choice)              |
+| `file`        | string          | File upload (returns file ID or URL) |
+| `signature`   | string (base64) | Digital signature                    |
+
+
+
+## 13. Summary
 
 * MongoDB allows flexible schema evolution.
 * Each version is tracked independently.
