@@ -13,19 +13,21 @@ export class SubmissionsController {
   }
 
   /**
-   * Save draft submission (no validation, for save and continue later)
-   * POST /forms/:formId/draft-submission
+   * Submit form (handles both in-progress and done status)
+   * POST /forms/submissions
    */
-  async saveInProgressSubmission(
+  async submitForm(
     request: FastifyRequest<{
-      Params: { formId: string };
-      Body: { data: Record<string, any> };
+      Body: { 
+        formId: string;
+        data: Record<string, any>;
+        status: 'in-progress' | 'done';
+      };
     }>,
     reply: FastifyReply
   ) {
     try {
-      const { formId } = request.params;
-      const { data } = request.body;
+      const { formId, data, status } = request.body;
       const submittedBy = request.user?.userId;
 
       if (!submittedBy) {
@@ -35,8 +37,8 @@ export class SubmissionsController {
         });
       }
 
-      // Validate request data (Simple validation, no validation rules)
-      const validation = this.validator.validateCreateSubmission({ formId, data, status: 'in-progress' });
+      // Validate request data
+      const validation = this.validator.validateCreateSubmission({ formId, data, status });
       if (!validation.isValid) {
         return reply.status(400).send({
           success: false,
@@ -45,7 +47,21 @@ export class SubmissionsController {
         });
       }
 
-      const submission = await this.service.saveInProgressSubmission(formId, data, submittedBy);
+      // Check if there's already an in-progress submission for this form and user
+      const existingInProgress = await this.service.getUserInProgressSubmission(formId, submittedBy);
+
+      let submission;
+      if (existingInProgress) {
+        // Update existing in-progress submission
+        submission = await this.service.updateSubmission(
+          existingInProgress._id.toString(),
+          { data, status },
+          submittedBy
+        );
+      } else {
+        // Create new submission
+        submission = await this.service.createSubmission(formId, data, submittedBy, status);
+      }
 
       return reply.status(201).send({
         success: true,
@@ -54,61 +70,13 @@ export class SubmissionsController {
     } catch (error) {
       return reply.status(400).send({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to save in-progress submission'
+        message: error instanceof Error ? error.message : 'Failed to submit form'
       });
     }
   }
 
   /**
-   * Submit answers (complete submission with validation)
-   * POST /forms/:formId/submissions
-   */
-  async submitAnswers(
-    request: FastifyRequest<{
-      Params: { formId: string };
-      Body: { data: Record<string, any> };
-    }>,
-    reply: FastifyReply
-  ) {
-    try {
-      const { formId } = request.params;
-      const { data } = request.body;
-      const submittedBy = request.user?.userId;
-
-      if (!submittedBy) {
-        return reply.status(401).send({
-          success: false,
-          message: 'Authentication required'
-        });
-      }
-
-      // Validate request data (Simple validation, no validation rules)
-      const validation = this.validator.validateCreateSubmission({ formId, data, status: 'done' });
-      if (!validation.isValid) {
-        return reply.status(400).send({
-          success: false,
-          message: 'Invalid request data',
-          errors: validation.errors
-        });
-      }
-
-      // Submit answers (complete submission with validation)
-      const submission = await this.service.submitAnswers(formId, data, submittedBy);
-
-      return reply.status(201).send({
-        success: true,
-        data: submission
-      });
-    } catch (error) {
-      return reply.status(400).send({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to submit answers'
-      });
-    }
-  }
-
-  /**
-   * List user's submissions (works for both user and admin)
+   * List user's submissions
    * GET /submissions
    */
   async listUserSubmissions(
@@ -143,76 +111,6 @@ export class SubmissionsController {
       });
     }
   }
-
-  /**
-   * Get user's submission by ID
-   * GET /submissions/:id
-   */
-  async getUserSubmissionById(
-    request: FastifyRequest<{
-      Params: { id: string };
-    }>,
-    reply: FastifyReply
-  ) {
-    try {
-      const { id } = request.params;
-      const userId = request.user?.userId;
-      const userRole = request.user?.role;
-
-      const submission = await this.service.getSubmissionById(id, userId, userRole);
-
-      return reply.send({
-        success: true,
-        data: submission
-      });
-    } catch (error) {
-      return reply.status(404).send({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to get submission'
-      });
-    }
-  }
-
-  /**
-   * Update user's submission
-   * PUT /submissions/:id
-   */
-  async updateUserSubmission(
-    request: FastifyRequest<{
-      Params: { id: string };
-      Body: { data?: Record<string, any>; status?: 'in-progress' | 'done' };
-    }>,
-    reply: FastifyReply
-  ) {
-    try {
-      const { id } = request.params;
-      const updates = request.body;
-      const userId = request.user?.userId;
-
-      // Validate update data (Simple validation, no validation rules)
-      const validation = this.validator.validateUpdateSubmission(updates);
-      if (!validation.isValid) {
-        return reply.status(400).send({
-          success: false,
-          message: 'Invalid update data',
-          errors: validation.errors
-        });
-      }
-
-      const submission = await this.service.updateSubmission(id, updates, userId);
-
-      return reply.send({
-        success: true,
-        data: submission
-      });
-    } catch (error) {
-      return reply.status(400).send({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to update submission'
-      });
-    }
-  }
-
 
   // ===== ADMIN ENDPOINTS =====
 
@@ -257,71 +155,6 @@ export class SubmissionsController {
       return reply.status(500).send({
         success: false,
         message: error instanceof Error ? error.message : 'Failed to list submissions'
-      });
-    }
-  }
-
-  /**
-   * Get any submission by ID (admin only)
-   * GET /admin/submissions/:id
-   */
-  async getSubmissionBySubmissionId(
-    request: FastifyRequest<{
-      Params: { id: string };
-    }>,
-    reply: FastifyReply
-  ) {
-    try {
-      const { id } = request.params;
-      const userId = request.user?.userId;
-      const userRole = request.user?.role;
-
-      if (!userId || userRole !== 'admin') {
-        return reply.status(403).send({
-          success: false,
-          message: 'Admin access required'
-        });
-      }
-
-      const submission = await this.service.getSubmissionById(id, userId, userRole);
-
-      return reply.send({
-        success: true,
-        data: submission
-      });
-    } catch (error) {
-      return reply.status(404).send({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to get submission'
-      });
-    }
-  }
-
-  /**
-   * Delete submission (works for both user and admin)
-   * DELETE /submissions/:id (user) or DELETE /admin/submissions/:id (admin)
-   */
-  async deleteSubmission(
-    request: FastifyRequest<{
-      Params: { id: string };
-    }>,
-    reply: FastifyReply
-  ) {
-    try {
-      const { id } = request.params;
-      const userId = request.user?.userId;
-      const userRole = request.user?.role;
-      
-      await this.service.deleteSubmission(id, userId, userRole);
-
-      return reply.send({
-        success: true,
-        message: 'Submission deleted successfully'
-      });
-    } catch (error) {
-      return reply.status(400).send({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to delete submission'
       });
     }
   }

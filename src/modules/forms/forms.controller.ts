@@ -39,9 +39,16 @@ export class FormsController {
         });
       }
 
+      if (!result.form) {
+        return reply.status(500).send({
+          success: false,
+          message: 'Failed to create form - no form returned',
+        });
+      }
+
       return reply.status(201).send({
         success: true,
-        data: this.formatForm(result.form!),
+        data: this.formatForm(result.form),
       });
     } catch (error: any) {
       return reply.status(400).send({

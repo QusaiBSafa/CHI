@@ -6,10 +6,45 @@ This document provides comprehensive examples for testing the CHI API endpoints,
 
 ## 📋 Table of Contents
 
-1. [Form Creation Examples](#form-creation-examples)
-2. [Submission Success Cases](#submission-success-cases)
-3. [Submission Failure Cases](#submission-failure-cases)
-4. [Complete API Testing Flow](#complete-api-testing-flow)
+1. [Simplified Submission API](#simplified-submission-api)
+2. [Form Creation Examples](#form-creation-examples)
+3. [Submission Success Cases](#submission-success-cases)
+4. [Submission Failure Cases](#submission-failure-cases)
+5. [Complete API Testing Flow](#complete-api-testing-flow)
+
+---
+
+## 🎯 Simplified Submission API
+
+The CHI API now uses a **single unified submission endpoint** that handles both draft and completed submissions:
+
+### **Single Endpoint:**
+```
+POST /api/v1/forms/submissions
+```
+
+### **Request Body:**
+```json
+{
+  "formId": "form_simple",
+  "data": { /* form field data */ },
+  "status": "in-progress" | "done"
+}
+```
+
+### **Smart Logic:**
+- **First submission**: Creates new submission with specified status
+- **Subsequent submissions**: Updates existing in-progress submission
+- **Status transitions**: 
+  - `in-progress` → `in-progress`: Updates data
+  - `in-progress` → `done`: Validates and completes submission
+  - `done` → `done`: Creates new completed submission
+
+### **Key Benefits:**
+✅ **One API endpoint** for all submission operations  
+✅ **Automatic in-progress management** (one per user per form)  
+✅ **Seamless status transitions** (draft → complete)  
+✅ **Simplified client integration**  
 
 ---
 
@@ -301,16 +336,18 @@ Content-Type: application/json
 ### Success Case 1: Complete Simple Form Submission
 
 ```bash
-POST /api/v1/forms/form_simple/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_simple",
   "data": {
     "field_name": "John Doe",
     "field_age": 35,
     "field_gender": "Male"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -338,11 +375,12 @@ Content-Type: application/json
 ### Success Case 2: Complete Complex Form Submission
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "Jane Smith",
     "field_email": "jane.smith@example.com",
@@ -354,36 +392,40 @@ Content-Type: application/json
     "field_medications": "Inhaler (albuterol), Zoloft 50mg daily",
     "field_smoker": "No",
     "field_exercise": "Yes"
-  }
+  },
+  "status": "done"
 }
 ```
 
 ### Success Case 3: Draft Submission (Save and Continue Later)
 
 ```bash
-POST /api/v1/forms/form_health_assessment/inprogress-submission
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "Bob Johnson",
     "field_email": "bob.johnson@example.com",
     "field_age": 45,
     "field_gender": "Male"
     // Note: Missing required fields - this is OK for draft
-  }
+  },
+  "status": "in-progress"
 }
 ```
 
 ### Success Case 4: Pregnant Female Submission
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "Sarah Wilson",
     "field_email": "sarah.wilson@example.com",
@@ -396,7 +438,8 @@ Content-Type: application/json
     "field_medications": "Prenatal vitamins",
     "field_smoker": "No",
     "field_exercise": "Yes"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -407,15 +450,17 @@ Content-Type: application/json
 ### Failure Case 1: Missing Required Fields
 
 ```bash
-POST /api/v1/forms/form_simple/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_simple",
   "data": {
     "field_name": "John Doe"
     // Missing required fields: field_age, field_gender
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -430,16 +475,18 @@ Content-Type: application/json
 ### Failure Case 2: Invalid Field Values
 
 ```bash
-POST /api/v1/forms/form_simple/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_simple",
   "data": {
     "field_name": "John Doe",
     "field_age": -5,
     "field_gender": "InvalidGender"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -454,11 +501,12 @@ Content-Type: application/json
 ### Failure Case 3: Branching Logic Violation
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "Jane Smith",
     "field_email": "jane@example.com",
@@ -466,7 +514,8 @@ Content-Type: application/json
     "field_gender": "Male",
     "field_pregnant": "Yes",  // Invalid: Male cannot be pregnant
     "field_due_date": "2025-06-15"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -481,17 +530,19 @@ Content-Type: application/json
 ### Failure Case 4: Invalid Email Format
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "John Doe",
     "field_email": "invalid-email-format",
     "field_age": 25,
     "field_gender": "Male"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -506,18 +557,20 @@ Content-Type: application/json
 ### Failure Case 5: Invalid Phone Number
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "John Doe",
     "field_email": "john@example.com",
     "field_phone": "not-a-phone-number",
     "field_age": 25,
     "field_gender": "Male"
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -532,18 +585,20 @@ Content-Type: application/json
 ### Failure Case 6: Invalid Multiselect Values
 
 ```bash
-POST /api/v1/forms/form_health_assessment/submissions
+POST /api/v1/forms/submissions
 Authorization: Bearer <patient-token>
 Content-Type: application/json
 
 {
+  "formId": "form_health_assessment",
   "data": {
     "field_name": "John Doe",
     "field_email": "john@example.com",
     "field_age": 25,
     "field_gender": "Male",
     "field_conditions": ["InvalidCondition", "AnotherInvalid"]
-  }
+  },
+  "status": "done"
 }
 ```
 
@@ -586,11 +641,8 @@ Authorization: Bearer <admin-token>
 ### Step 3: Test Patient Submissions
 ```bash
 # Test successful submissions
-POST /api/v1/forms/form_simple/submissions
-POST /api/v1/forms/form_health_assessment/submissions
-
-# Test draft submissions
-POST /api/v1/forms/form_health_assessment/inprogress-submission
+POST /api/v1/forms/submissions
+# Use success case examples above
 
 # Test failure cases
 # Use all failure examples above
@@ -602,16 +654,8 @@ POST /api/v1/forms/form_health_assessment/inprogress-submission
 GET /api/v1/admin/submissions
 Authorization: Bearer <admin-token>
 
-# Get specific submission
-GET /api/v1/admin/submissions/{submission-id}
-Authorization: Bearer <admin-token>
-
 # List user's submissions
 GET /api/v1/submissions
-Authorization: Bearer <patient-token>
-
-# Update submission
-PUT /api/v1/submissions/{submission-id}
 Authorization: Bearer <patient-token>
 ```
 
@@ -629,9 +673,8 @@ Authorization: Bearer <patient-token>
 
 ### ✅ Submission Management
 - [ ] Submit complete form (success)
-- [ ] Save draft submission
-- [ ] Update submission
-- [ ] Delete submission
+- [ ] Save draft submission (in-progress)
+- [ ] Update existing in-progress submission
 - [ ] List user submissions
 - [ ] List all submissions (admin)
 

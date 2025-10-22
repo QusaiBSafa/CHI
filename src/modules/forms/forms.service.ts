@@ -27,7 +27,7 @@ export class FormsService {
     // TODO should we go with this solution or archieve the old draft if they exist?
     const existingDraft = await this.repository.findLatestDraft(formId);
     if (existingDraft) {
-      throw new Error(`A draft already exists for form ID: ${formId}. Please update the existing draft or publish it first.`);
+      throw new Error(`A draft already exists for form ID: ${formId}, version: ${existingDraft.version}, DB ID: ${existingDraft._id.toString()}. Please update the existing draft or publish it first.`);
     }
 
     // Validate definition
