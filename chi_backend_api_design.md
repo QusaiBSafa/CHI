@@ -196,9 +196,9 @@ TODO - Support showing form history by returning all records of a from Id with u
 ### 🧍 Patient APIs
 | Method | Endpoint | Description |
 |--------|-----------|--------------|
-| `GET` | `/public/forms/:formId` | Get latest published version |
-| `POST` | `/public/forms/:formId/draft-submission` | Save and continue later| for authenticated users, don't run validation rules at this stage
-| `POST` | `/public/forms/:formId/submissions` | Submit answers |
+| `GET` | `/forms/:formId` | Get latest published version |
+| `POST` | `/forms/:formId/draft-submission` | Save and continue later| for authenticated users, don't run validation rules at this stage
+| `POST` | `/forms/:formId/submissions` | Submit answers |
 
 **Anonymous submissions:** Supported if form is public.
 

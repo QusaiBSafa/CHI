@@ -76,24 +76,24 @@ export class SubmissionValidator {
         }
       }
 
-      // 2. Check required fields in the form are submitted
-      for (const fieldId of visibleFieldIds) {
-        const field = allFields.find(f => f.id === fieldId);
-        if (!field) continue;
+      // // 2. Check required fields in the form are submitted
+      // for (const fieldId of visibleFieldIds) {
+      //   const field = allFields.find(f => f.id === fieldId);
+      //   if (!field) continue;
 
-        const fieldValue = submissionData[fieldId];
+      //   const fieldValue = submissionData[fieldId];
         
-        // Check if field is required (has required validation rule)
-        const isRequired = field.validation?.some(rule => rule.rule === 'required');
+      //   // Check if field is required (has required validation rule)
+      //   const isRequired = field.validation?.some(rule => rule.rule === 'required');
         
-        if (isRequired && (fieldValue === undefined || fieldValue === null || fieldValue === '')) {
-          errors.push({
-            path: `field.${fieldId}`,
-            code: 'required_field',
-            message: `Field '${field.label || fieldId}' is required`
-          });
-        }
-      }
+      //   if (isRequired && (fieldValue === undefined || fieldValue === null || fieldValue === '')) {
+      //     errors.push({
+      //       path: `field.${fieldId}`,
+      //       code: 'required_field',
+      //       message: `Field '${field.label || fieldId}' is required`
+      //     });
+      //   }
+      // }
 
       // 3. Check single select and multiple select values are part of the options
       for (const fieldId of visibleFieldIds) {

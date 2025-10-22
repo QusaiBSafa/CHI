@@ -24,7 +24,7 @@ export class FormsService {
   ): Promise<{ form?: Form; errors?: ValidationError[] }> {
 
      // Check if there's already a draft for this formId
-    // TODO check this , should we go with this solution or archieve the old draft if it exists?
+    // TODO should we go with this solution or archieve the old draft if they exist?
     const existingDraft = await this.repository.findLatestDraft(formId);
     if (existingDraft) {
       throw new Error(`A draft already exists for form ID: ${formId}. Please update the existing draft or publish it first.`);
@@ -136,7 +136,7 @@ export class FormsService {
    * - Archives the previous published version (if exists)
    */
   async publish(formId: string, publishedBy: string): Promise<Form> {
-    //TODO since we have allow one draft per form id so we
+    // We garantee that there is only one draft for a formId, we have check in createDraft method
     const draft = await this.repository.findDraftByFormId(formId);
     
     if (!draft) {
