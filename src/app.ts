@@ -26,8 +26,8 @@ export async function buildApp(): Promise<FastifyInstance> {
       },
       servers: [
         {
-          url: `http://localhost:${env.port}`,
-          description: 'Development server',
+          url: env.baseUrl,
+          description: env.nodeEnv === 'production' ? 'Production server' : 'Development server',
         },
       ],
       components: {

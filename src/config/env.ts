@@ -5,6 +5,7 @@ export const env = {
   mongoUrl: process.env.MONGO_URL || 'mongodb://localhost:27017/chi',
   jwtSecret: process.env.JWT_SECRET || 'change-me-in-production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  baseUrl: process.env.BASE_URL || `http://localhost:${Number(process.env.PORT) || 3000}`,
 };
 
 export function validateEnv() {
