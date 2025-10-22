@@ -26,9 +26,14 @@ export async function buildApp(): Promise<FastifyInstance> {
       },
       servers: [
         {
-          url: env.baseUrl,
-          description: env.nodeEnv === 'production' ? 'Production server' : 'Development server',
+          url: 'https://chi-qusai.vercel.app', // TODO make this configurable
+          description: 'dev server',
         },
+        {
+          url: 'http://localhost:3000',
+          description: 'Local server',
+        }
+      
       ],
       components: {
         securitySchemes: {

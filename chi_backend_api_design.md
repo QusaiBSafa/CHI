@@ -5,6 +5,7 @@ This document outlines the complete backend design for the **Clinical Health Int
 
 ---
 
+
 ## 🧱 Architecture
 - **Language:** Node.js (TypeScript)
 - **Framework:** Fastify (schema-first, high performance)
@@ -14,6 +15,12 @@ This document outlines the complete backend design for the **Clinical Health Int
 - **Deployment:** Docker + docker-compose
 
 ---
+
+Why MongoDB: MongoDB offers flexible schema evolution and stores each form version as an independent document, ideal for dynamic and versioned form structures (in the current implmentation we are going to save 1 draft per form per version, in future we can easy improve this to save any change on the draft in different object)
+
+Why Fastify: Fastify's design principles make it particularly advantageous when working with schemas and complex validations due to its built-in support for JSON Schema and its emphasis on performance.
+
+The Clinical Health Intake (CHI) form system enables clinical teams to design, publish, and manage questionnaires dynamically without engineering deployments.
 
 ## 📁 Folder Structure
 ```
